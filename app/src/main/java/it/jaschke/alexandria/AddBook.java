@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -96,12 +98,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         rootView.findViewById(R.id.scan_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Creates an Array with the Scan formats.
-                ArrayList<String> list = new ArrayList<String>();
-                list.add(ISBN_FORMAT);
-                // Starts barcode intent
-                IntentIntegrator intentIntegrator = new IntentIntegrator(getActivity());
-                intentIntegrator.initiateScan(list);
+                onScanPressed();
             }
         });
 
@@ -216,5 +213,20 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 }
             }
         });
+    }
+
+    private void onScanPressed() {
+        ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            // Creates an Array with the Scan formats.
+            ArrayList<String> list = new ArrayList<String>();
+            list.add(ISBN_FORMAT);
+            // Starts barcode intent
+            IntentIntegrator intentIntegrator = new IntentIntegrator(getActivity());
+            intentIntegrator.initiateScan(list);
+        } else {
+            Toast.makeText(getActivity(), "Check your Internet Connection and try again!", Toast.LENGTH_SHORT).show();
+        }
     }
 }
