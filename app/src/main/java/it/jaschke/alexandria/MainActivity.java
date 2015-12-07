@@ -12,15 +12,21 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+
 import it.jaschke.alexandria.api.Callback;
 
 
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, Callback {
+    private static final String TAG = "MainActivity";
+    private static OnScanListener mOnScanListener;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -178,5 +184,28 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         super.onBackPressed();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+            if (result == null || mOnScanListener == null) {
+                return;
+            }
+            String isbn = result.getContents();
+            Log.d(TAG, "ISBN = " + isbn);
+            mOnScanListener.onScan(isbn);
+        } else {
+            Toast.makeText(this, "Reading ISBN cancelled. Try again!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public static void setOnScanListener(OnScanListener listener) {
+        mOnScanListener = listener;
+    }
+
+    public interface OnScanListener {
+        void onScan(String isbn);
+    }
 
 }
