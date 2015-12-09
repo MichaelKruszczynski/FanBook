@@ -4,6 +4,7 @@ package it.jaschke.alexandria.api;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import it.jaschke.alexandria.R;
+import it.jaschke.alexandria.Utils;
 import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.services.DownloadImage;
 
@@ -18,7 +20,7 @@ import it.jaschke.alexandria.services.DownloadImage;
  * Created by saj on 11/01/15.
  */
 public class BookListAdapter extends CursorAdapter {
-
+    private static final String TAG = "BookListAdapter";
 
     public static class ViewHolder {
         public final ImageView bookCover;
@@ -42,7 +44,11 @@ public class BookListAdapter extends CursorAdapter {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         String imgUrl = cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
-        new DownloadImage(viewHolder.bookCover).execute(imgUrl);
+        if (Utils.checkInternetConnection(context.getApplicationContext())) {
+            new DownloadImage(viewHolder.bookCover).execute(imgUrl);
+        } else {
+            Log.d(TAG, "viewHolder.bookCover.Image. No internet connection.");
+        }
 
         String bookTitle = cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
         viewHolder.bookTitle.setText(bookTitle);

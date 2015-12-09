@@ -21,6 +21,7 @@ import java.net.URL;
 
 import it.jaschke.alexandria.MainActivity;
 import it.jaschke.alexandria.R;
+import it.jaschke.alexandria.Utils;
 import it.jaschke.alexandria.data.AlexandriaContract;
 
 
@@ -91,6 +92,11 @@ public class BookService extends IntentService {
 
         bookEntry.close();
 
+        if (!Utils.checkInternetConnection(getApplicationContext())) {
+            Log.d(LOG_TAG, "No internet connection.");
+            return;
+        }
+
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String bookJsonString = null;
@@ -155,6 +161,11 @@ public class BookService extends IntentService {
         final String CATEGORIES = "categories";
         final String IMG_URL_PATH = "imageLinks";
         final String IMG_URL = "thumbnail";
+
+        if (bookJsonString == null) {
+            Log.d(LOG_TAG, "bookJsonString is null");
+            return;
+        }
 
         try {
             JSONObject bookJson = new JSONObject(bookJsonString);

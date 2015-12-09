@@ -171,7 +171,11 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
         String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
         if(Patterns.WEB_URL.matcher(imgUrl).matches()){
-            new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
+            if (Utils.checkInternetConnection(getActivity())) {
+                new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
+            } else {
+                Log.d(TAG, "bookCoverImage. No internet connection.");
+            }
             rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
         }
 
@@ -216,9 +220,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     }
 
     private void onScanPressed() {
-        ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected()) {
+        if (Utils.checkInternetConnection(getActivity())) {
             // Creates an Array with the Scan formats.
             ArrayList<String> list = new ArrayList<String>();
             list.add(ISBN_FORMAT);

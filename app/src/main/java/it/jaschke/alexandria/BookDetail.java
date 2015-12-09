@@ -8,6 +8,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,7 +25,7 @@ import it.jaschke.alexandria.services.DownloadImage;
 
 
 public class BookDetail extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-
+    private static final String TAG = "BookDetail";
     public static final String EAN_KEY = "EAN";
     private final int LOADER_ID = 10;
     private View rootView;
@@ -113,7 +114,12 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
         String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
         if(Patterns.WEB_URL.matcher(imgUrl).matches()){
-            new DownloadImage((ImageView) rootView.findViewById(R.id.fullBookCover)).execute(imgUrl);
+            if (Utils.checkInternetConnection(getActivity())) {
+                new DownloadImage((ImageView) rootView.findViewById(R.id.fullBookCover)).execute(imgUrl);
+            } else {
+                ((ImageView) rootView.findViewById(R.id.fullBookCover)).setImageResource(R.drawable.ic_launcher);
+                Log.d(TAG, "fullBookCoverImage. No internet connection.");
+            }
             rootView.findViewById(R.id.fullBookCover).setVisibility(View.VISIBLE);
         }
 
